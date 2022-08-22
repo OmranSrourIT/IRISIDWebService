@@ -1,0 +1,581 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+
+
+}
+
+@section script
+{
+    <link href="~/Content/fontawesome/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/fontawesome/font-awesome.min.css" rel="stylesheet" />
+    <script type="text/javascript">
+        var url = "@Url.Action("ImageLive_Capture", "IRISCamera")";
+        var urlCapture = "@Url.Action("Save_Image_Capture", "IRISCamera")";
+        var EndCapture = "@Url.Action("StopLiveImage_Capture", "IRISCamera")";
+        var PerparingCaptureURL = "@Url.Action("CheckConnectionCamera", "IRISCamera")";
+        var WindowsApiUrlGetImage = "http://localhost:1234/api/Home/GetAllImage_Live";
+        var WindowsApiUrlOpenDevice_Camera = "http://localhost:1234/api/Home/OpenDeviceIRIS_CAMERA";
+
+        $("#IMAGE_IRIS").attr("src",null);
+
+        window.setInterval(function () {
+
+                $.ajax({
+                    url: WindowsApiUrlGetImage,
+                    type: "GET",
+                    dataType: "json",
+                    crossDomain: true,
+                    success: function (response) {
+
+
+                        if (response == 0) {
+                            $("#IMAGE_IRIS").attr("src", null);
+                        } else {
+                            $("#IMAGE_IRIS").attr("src", "data:image/png;base64," + response.IMAGE_Arr);
+
+                        }
+
+
+                    },
+                    error: function (e) {
+
+                        var xxx = e
+
+                    }
+                });
+
+
+        });
+
+        //$("#connectButton").click(function () {
+
+        //    $.ajax({
+        //        url: WindowsApiUrlOpenDevice_Camera,
+        //        type: "GET",
+        //        dataType: "json",
+        //        crossDomain: true,
+        //        success: function (response) {
+
+        //            debugger;
+        //            if (response[0] == 'ConnectionSuccssfult') {
+        //                alert("تم تشغيل الكاميرا بنجاح");
+        //            } else if (response[0] == 'IS_ERROR_ALREADY_OPEN') {
+        //                alert("الكاميرا حاليا في وضع التشغيل");
+        //            } else {
+        //                if (confirm("قد تكون الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+        //                    window.open("/files/IRISCameraSetup.msi", "_base");
+        //            }
+        //            }
+        //        },
+        //        error: function (e) {
+        //            if (confirm("قد تكون الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+        //                window.open("/files/IRISCameraSetup.msi", "_base");
+        //            }
+        //        }
+        //    });
+        //    //////////////
+        //    //$.ajax({
+        //    //    url: PerparingCaptureURL,
+        //    //    type: "GET",
+        //    //    dataType: "json",
+        //    //    success: function (response) {
+        //    //        debugger;
+        //    //        if (response == "IS_ERROR_COMMUNICATION") {
+        //    //            if (confirm("قد تكون الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+        //    //                window.open("/files/IRISCameraSetup.msi", "_base");
+        //    //                window.open("/files/ICAMR100IRISSDK/setup.exe", "_base");
+        //    //                window.open("/files/IDATA/setup.exe", "_base");
+        //    //            }
+        //    //        }
+
+        //    //    },
+        //    //    error: function (e) {
+
+        //    //        var xxx = e
+
+        //    //    }
+        //    //});
+
+        //})
+
+
+
+        $("#captureButton").click(function () {
+
+            debugger;
+            var IMage1Cap = document.getElementById("IMAGE_IRIS").src;
+
+            var Splitstr = IMage1Cap.split(',')[1];
+            var formdata = new FormData();
+
+            formdata.append("base64image", Splitstr);
+            $.ajax({
+                url: EndCapture,
+                type: "POST",
+                processData: false,
+                contentType: false,
+                data: formdata,
+                success: function (response) {
+                    var ResultImage = "data:image/png;base64," + response
+                    $("#imgCaptured").attr("src", ResultImage );
+                },
+                error: function (e) {
+
+                    var xxx = e
+
+                }
+            });
+
+        });
+
+        function getParameterByName(name) {
+
+            debugger;
+
+                name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                    results = regex.exec(location.search);
+                return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
+
+
+        function OUT_REFRESH_ATT(siebleCaseId) {
+            debugger;
+
+            SiebelApp = top.parent.SiebelApp; OUT_REFRESH_ATT
+            var app = top.parent.SiebelApp.S_App;
+            var sBusService = SiebelApp.S_App.GetService("Workflow Process Manager");
+
+            if (sBusService) {
+                //Create new property set
+                var Inputs = SiebelApp.S_App.NewPropertySet();
+                var Outputs = SiebelApp.S_App.NewPropertySet();
+
+                /* log */
+                console.log('================OUT_REFRESH_ATT================')
+
+                console.log("Object Id", siebleCaseId);
+
+                /* end log */
+
+
+                Inputs.SetProperty("ProcessName", 'OUT Refresh Attachment WF');
+                Inputs.SetProperty("Object Id", siebleCaseId);
+
+                //sFingerOwner
+
+                // Invoke the Business service Method and pass the Inputs
+                Outputs = sBusService.InvokeMethod("RunProcess", Inputs);
+
+                console.log(Outputs);
+                // Get the Outputs/Result Set in a property set
+                //var ResultSet = SiebelApp.S_App.NewPropertySet();
+                //ResultSet = oups.GetChildByType ("result");
+            }
+            else {
+                alert("Business Service Refresh Not Found");
+            }
+        }
+
+
+        $("#SaveImageCapture").click(function () {
+            debugger;
+           
+            let URL_CASEID = sessionStorage.getItem("SCaseID");
+            var CASEID = URL_CASEID ?URL_CASEID.split('=')[1]:"";
+            sessionStorage.removeItem("SCaseID");
+            var formdata = new FormData();
+            /*var $("#imgCaptured").prop("src", capture.ImageUrl); */
+            var ImageCupturesrc = document.getElementById("imgCaptured").src;
+            var SplitstrImage = ImageCupturesrc.split(',')[1];
+
+            formdata.append("base64image", SplitstrImage);
+            $.ajax({
+                url: urlCapture,
+                type: "POST",
+                processData: false,
+                contentType: false,
+                data: formdata,
+                success: function (response) { 
+                    debugger;
+                   
+                    SiebelApp = top.parent.SiebelApp;
+                    //  var app = top.parent.SiebelApp.S_App;
+                    var sBusService = SiebelApp.S_App.GetService("OUT Common Business Service");
+                    debugger;
+                    if (sBusService) {
+                        //Create new property set
+                        var Inputs = SiebelApp.S_App.NewPropertySet();
+                        var Outputs = SiebelApp.S_App.NewPropertySet();
+                        /*-------LOG --------*/
+                        console.log(response);
+                        console.log(CASEID);
+                        /*-------------------*/
+                        Inputs.SetProperty("FilePath", response);
+                        Inputs.SetProperty("FileDescARA", 'الصورة الحية');
+                        Inputs.SetProperty("CaseId", CASEID);
+                        Inputs.SetProperty("RequestType", 'Case');
+
+                        // Invoke the Business service Method and pass the Inputs
+                        Outputs = sBusService.InvokeMethod("AddAttachmentToFileSystem", Inputs);
+                        debugger;
+                     
+                        alert("تم حفظ الصوره بنجاح");
+                        OUT_REFRESH_ATT(CASEID);
+                        console.log(Outputs);
+                        // Get the Outputs/Result Set in a property set
+                        //var ResultSet = SiebelApp.S_App.NewPropertySet();
+                        //ResultSet = oups.GetChildByType ("result");
+
+                    }
+                    else {
+                        
+                        alert("Business Service Not Found");
+                    }
+                },
+                error: function (xhr, textStatus, error) {
+                    debugger;
+                    console.log("*****Ashraf********");
+                    console.log(xhr.statusText);
+                    console.log(textStatus);
+                    console.log(error);
+                    console.log("*****Ashraf********");
+                }
+            });
+
+              
+        });
+
+
+        $(document).ready(function () {
+            $('#fakeIMage').hide();
+            $('#pageloaddivLeft').show();
+            $("#IMAGE_IRIS").attr("src", null);
+
+                $.ajax({
+                    url: WindowsApiUrlOpenDevice_Camera,
+                type: "GET",
+                dataType: "json",
+                crossDomain: true,
+                success: function (response) {
+
+                    debugger;
+                    if (response[0] == 'ConnectionSuccssfult') {
+                        $('#fakeIMage').show();
+                        $('#pageloaddivLeft').hide();
+                       // alert("تم تشغيل الكاميرا بنجاح");
+                    } else if (response[0] == 'IS_ERROR_ALREADY_OPEN') {
+                        $('#fakeIMage').show();
+                        $('#pageloaddivLeft').hide();
+                       // alert("الكاميرا حاليا في وضع التشغيل");
+                    } else if (response[0] == 'IS_ERROR_NONE') {
+                        $('#pageloaddivLeft').hide();
+                        $('#fakeIMage').show();
+
+                    }  else {
+                        if (confirm("قد يكون الجهاز غير متوفر او الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+                            window.open("/IRIS_CAMERA_CAPTURE/files/IRISCameraSetup.msi", "_base");
+                        }
+                    }
+                },
+                error: function (e) {
+                    if (confirm("قد يكون الجهاز غير متوفر او الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+                        window.open("/IRIS_CAMERA_CAPTURE/files/IRISCameraSetup.msi", "_base");
+                    }
+                }
+            });
+         });
+
+        $("#buttonBack").click(function () {
+            window.location = "/IRIS_CAMERA_CAPTURE/IRIS_Root/IRIS_PAGES";
+
+        });
+
+        $("#buttonRefresh").click(function () {
+            $('#fakeIMage').hide();
+            $('#pageloaddivLeft').show();
+            $("#IMAGE_IRIS").attr("src", null);
+
+            $.ajax({
+                url: WindowsApiUrlOpenDevice_Camera,
+                type: "GET",
+                dataType: "json",
+                crossDomain: true,
+                success: function (response) {
+
+                    debugger;
+                    if (response[0] == 'ConnectionSuccssfult') {
+                        $('#fakeIMage').show();
+                        $('#pageloaddivLeft').hide();
+                        // alert("تم تشغيل الكاميرا بنجاح");
+                    } else if (response[0] == 'IS_ERROR_ALREADY_OPEN') {
+                        $('#fakeIMage').show();
+                        $('#pageloaddivLeft').hide();
+                        // alert("الكاميرا حاليا في وضع التشغيل");
+                    } else if (response[0] == 'IS_ERROR_NONE') {
+                        $('#pageloaddivLeft').hide();
+                        $('#fakeIMage').show();
+
+                    } else {
+                        if (confirm("قد يكون الجهاز غير متوفر او الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+                            window.open("/IRIS_CAMERA_CAPTURE/files/IRISCameraSetup.msi", "_base");
+                        }
+                    }
+                },
+                error: function (e) {
+                    if (confirm("قد يكون الجهاز غير متوفر او الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+                        window.open("/IRIS_CAMERA_CAPTURE/files/IRISCameraSetup.msi", "_base");
+                    }
+                }
+            });
+        });
+        
+
+
+
+
+    </script>
+}
+
+
+<style>
+    .borderSstyle {
+        border: 1px solid;
+        border-radius: 25px;
+    }
+
+    .img_camera {
+        width: 400px;
+        height: 240px;
+        position: absolute;
+        top: 5px;
+        padding-right: 64px;
+        z-index: 9999;
+    }
+
+    button#EyeCaptureButton {
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 130px;
+        height: 35px;
+    }
+
+
+
+    button#connectButton {
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 130px;
+        height: 35px;
+    }
+
+    .panel-default > .panel-heading {
+        direction: rtl;
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        text-orientation: rtl;
+    }
+
+    .form-control {
+        border: 1px solid #9e8615;
+    }
+
+    button#saveButton {
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        font-size: 18px;
+        font-weight: bold;
+        height: 35px;
+        color: white;
+        width: 200px !important;
+    }
+
+    button#captureButton {
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        font-size: 18px;
+        font-weight: bold;
+        height: 35px;
+        color: white;
+        width: 200px !important;
+    }
+
+    button#SaveImageCapture {
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        font-size: 18px;
+        font-weight: bold;
+        height: 35px;
+        color: white;
+        width: 200px !important;
+    }
+
+    button#EyeCaptureButton::after {
+        content: "\f06e";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px
+    }
+
+    button#connectButton:after {
+        content: "\f013";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px
+    }
+
+    button#captureButton:after {
+        content: "\f030";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px;
+    }
+
+    button#saveButton:after {
+        content: "\f0c7";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px;
+    }
+
+    button#buttonBack:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    button#buttonRefresh:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    
+
+
+    button#buttonBack {
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615;
+        color: white !important;
+        width: 105px;
+        height: 35px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    button#buttonRefresh {
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615;
+        color: white !important;
+        width: 105px;
+        height: 35px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+
+    #pageloaddivLeft {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        background: url('https://www.marcotec-shop.com/pub/static/frontend/Triple/marcotec/en_US/images/loading_small.gif') no-repeat center center;
+    }
+</style>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">اجهزة التصوير </div>
+    </div>
+
+    <div class="col-lg-12 col-lg-offset-1 text-center">
+
+        <div class="row" style="margin-left:10px;">
+            <div class="form-group col-sm-7">
+
+            </div>
+
+            <div class="form-group col-sm-5">
+                <button class="fa" id="buttonRefresh" class="btn btn-success btn-block">تحديث</button>
+                <button class="fa" id="buttonBack" class="btn btn-success btn-block">الرئيسية</button>
+                .
+            </div>
+
+        </div>
+        <!-- me <input type="button" id="connectButton" value="Connect" />
+          <input type="button" id="disconnectButton" value="Disconnect" />
+          <input type="button" id="captureButton" value="Capture Image" />
+
+          -->
+        <select style="display:none;" id="sCaptureTypes"></select>
+
+        <div id="img" class="row" style="margin: 0 auto;">
+            <div class="col-md-4">
+                <div class="img_camera">
+                    <div id="pageloaddivLeft">
+                    </div>
+                    <img id="fakeIMage" src="~/img/outline.png" />
+                </div>
+                <img id="IMAGE_IRIS" runat="server" class="borderSstyle" width="295" height="240" style="border:1px solid #000000;" />
+                <!-- <canvas id="myCanvas" class="borderSstyle " width="320" height="240" style="border:1px solid #000000;"></canvas> -->
+            </div>
+
+
+
+            <div class="col-md-4">
+                <img id="imgCaptured" src="~/img/PersonPic.png" class="borderSstyle" width="240" height="240" style="border:1px solid #000000;" />
+                <!--<img id="imgCaptured" class="borderSstyle" width="190px" height="240px" src="" />-->
+            </div>
+        </div>
+        <!--Received images:
+        <input type="text" id="receivedImagesCount" value="0" style="border:none"><br /><br />-->
+
+        <div style="display:none;">
+            <label>Status:</label><input type="text" readonly="readonly" id="tbprocessstatus" value="" size="30" />
+            <div id="log"></div><br />
+            <label>Capture Response: </label><br /><br />
+            <label>Image URL: </label><input id="imgURL" readonly="readonly" size="60" height="100" width="300" value="" /><br />
+            <label>Image Path: </label><input id="imgPath" readonly="readonly" size="60" height="100" width="300" value="" /><br />
+            <label>Base64: </label><asp:HiddenField id="imgbase64" value="" runat="server"></asp:HiddenField><br />
+
+        </div>
+
+        <div class="row" style="margin-top:15px; margin-left:4px;">
+            <div class="form-group col-sm-4">
+                <button type="button" class="fa" id="captureButton" class="btn btn-primary" style="width:90%">التقاط الصورة</button>
+            </div>
+
+            <div class="form-group col-sm-4">
+                <!--<button type="button" class="fa" id="saveButton" class="btn btn-success btn-block">حفظ الصورة</button>-->
+                <button type="button" class="fa" id="SaveImageCapture" class="btn btn-success btn-block" style="width:90%">حفظ الصورة</button>
+
+                @*<asp:Button id="saveButton" Text="حفظ الصورة" runat="server" OnClick="saveButton_Click" CssClass="" />*@
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+

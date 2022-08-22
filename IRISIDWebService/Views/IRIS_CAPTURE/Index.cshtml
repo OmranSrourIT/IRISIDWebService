@@ -1,0 +1,757 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+
+@section script
+{
+    <link href="~/Content/fontawesome/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/fontawesome/font-awesome.min.css" rel="stylesheet" />
+    <script language="javascript" type="text/javascript">
+
+        var urlCapture = "@Url.Action("Save_Eyes_Capture", "IRIS_CAPTURE")";
+
+        //var select = document.getElementById('sDevices');
+        //var valueSelect = select.options[select.selectedIndex].value;
+        var selectedDevice = "2";
+        var WindowsApiUrlOpenDevice_Capture = "http://localhost:1234/api/Home/OpenDeviceIRIS_Capture";
+        var WindowsApiUrlIrisCapture = "http://localhost:1234/api/Home/IrisCapture?WhichEye=" + selectedDevice;;
+        $('#IMAGE_IRIS_RIGHT').removeProp('src');
+        $('#IMAGE_IRIS_LEFT').removeProp('src');
+        $('#pageloaddivLeft').hide();
+        $('#pageloaddivRight').hide();
+        $("#ResponseMessageQuailityEyes").text("");
+        $("#DivMessgaBox").hide();
+        $("#QuiltyRight").text("");
+        $("#QuiltyLeft").text("");
+        $("#QialtyHide").hide();
+        $("#QialtyHide2").hide();
+        $('#IMAGE_IRIS_RIGHT').removeProp('src');
+        $('#IMAGE_IRIS_LEFT').removeProp('src');
+
+
+        function OUT_REFRESH_ATT(siebleCaseId) {
+            debugger;
+
+            SiebelApp = top.parent.SiebelApp;
+            var app = top.parent.SiebelApp.S_App;
+            var sBusService = SiebelApp.S_App.GetService("Workflow Process Manager");
+
+            if (sBusService) {
+                //Create new property set
+                var Inputs = SiebelApp.S_App.NewPropertySet();
+                var Outputs = SiebelApp.S_App.NewPropertySet();
+
+                /* log */
+                console.log('================OUT_REFRESH_ATT================')
+
+                console.log("Object Id", siebleCaseId);
+
+                /* end log */
+
+
+                Inputs.SetProperty("ProcessName", 'OUT Refresh Attachment WF');
+                Inputs.SetProperty("Object Id", siebleCaseId);
+
+                //sFingerOwner
+
+                // Invoke the Business service Method and pass the Inputs
+                Outputs = sBusService.InvokeMethod("RunProcess", Inputs);
+
+                console.log(Outputs);
+                // Get the Outputs/Result Set in a property set
+                //var ResultSet = SiebelApp.S_App.NewPropertySet();
+                //ResultSet = oups.GetChildByType ("result");
+            }
+            else {
+                alert("Business Service Refresh Not Found");
+            }
+        }
+
+
+
+        $("#SaveEyeButton").click(function () {
+
+            debugger;
+
+            let URL_CASEID = sessionStorage.getItem("SCaseID");
+            var CASEID = URL_CASEID ? URL_CASEID.split('=')[1] : "";
+            sessionStorage.removeItem("SCaseID");
+
+
+
+            var formdataRight = new FormData();
+
+            var ImageEyeRight = document.getElementById("IMAGE_IRIS_LEFT").src;
+            var ImageEyeLeft = document.getElementById("IMAGE_IRIS_RIGHT").src;
+
+            var SplitstrImageRight = ImageEyeRight.split(',')[1];
+            var SplitstrImageLeft = ImageEyeLeft.split(',')[1];
+             
+            formdataRight.append("base64imageEyes", SplitstrImageRight);
+                $.ajax({
+                    url: urlCapture,
+                    type: "POST",
+                    processData: false,
+                    contentType: false, 
+                    data: formdataRight,
+                    success: function (response) {
+                      
+                        debugger;
+
+                        SiebelApp = top.parent.SiebelApp;
+                        var sBusService = SiebelApp.S_App.GetService("OUT Common Business Service");
+                        debugger;
+                        if (sBusService) {
+                            //Create new property set
+                            var Inputs = SiebelApp.S_App.NewPropertySet();
+                            var Outputs = SiebelApp.S_App.NewPropertySet();
+                            /*-------LOG --------*/
+                            console.log(response);
+                            console.log(CASEID);
+                            /*-------------------*/
+                            Inputs.SetProperty("FilePath", response);
+                            Inputs.SetProperty("FileDescARA", 'صورة العين اليمنى');
+                            Inputs.SetProperty("CaseId", CASEID);
+                            Inputs.SetProperty("RequestType", 'Case');
+
+                            // Invoke the Business service Method and pass the Inputs
+                            Outputs = sBusService.InvokeMethod("AddAttachmentToFileSystem", Inputs);
+                            debugger;
+
+                            alert("تم حفظ الصوره بنجاح");
+                            OUT_REFRESH_ATT(CASEID);
+                            console.log(Outputs);
+                            // Get the Outputs/Result Set in a property set
+                            //var ResultSet = SiebelApp.S_App.NewPropertySet();
+                            //ResultSet = oups.GetChildByType ("result");
+
+                        }
+                        else {
+
+                            alert("Business Service Not Found");
+                        }
+                    },
+                    error: function (xhr, textStatus, error) {
+                        debugger;
+                        console.log("*****Ashraf********");
+                        console.log(xhr.statusText);
+                        console.log(textStatus);
+                        console.log(error);
+                        console.log("*****Ashraf********");
+                    }
+                });
+
+
+            //////////////////Left *////////////////
+            var formdataLeft = new FormData();
+            formdataLeft.append("base64imageEyes", SplitstrImageLeft);
+            $.ajax({
+                url: urlCapture,
+                type: "POST",
+                processData: false,
+                contentType: false, 
+                data: formdataLeft,
+                success: function (response) {
+                 //   OUT_REFRESH_ATT(CASEID);
+                    debugger;
+
+                    SiebelApp = top.parent.SiebelApp;
+                    var sBusService = SiebelApp.S_App.GetService("OUT Common Business Service");
+                    debugger;
+                    if (sBusService) {
+                        //Create new property set
+                        var Inputs = SiebelApp.S_App.NewPropertySet();
+                        var Outputs = SiebelApp.S_App.NewPropertySet();
+                        /*-------LOG --------*/
+                        console.log(response);
+                        console.log(CASEID);
+                        /*-------------------*/
+                        Inputs.SetProperty("FilePath", response);
+                        Inputs.SetProperty("FileDescARA", 'صورة العين اليسرى');
+                        Inputs.SetProperty("CaseId", CASEID);
+                        Inputs.SetProperty("RequestType", 'Case');
+
+                        // Invoke the Business service Method and pass the Inputs
+                        Outputs = sBusService.InvokeMethod("AddAttachmentToFileSystem", Inputs);
+                        debugger;
+                        OUT_REFRESH_ATT(CASEID);
+                        // Get the Outputs/Result Set in a property set
+                        //var ResultSet = SiebelApp.S_App.NewPropertySet();
+                        //ResultSet = oups.GetChildByType ("result");
+
+                    }
+                    else {
+
+                        alert("Business Service Not Found");
+                    }
+                },
+                error: function (xhr, textStatus, error) {
+                    debugger;
+                    console.log("*****Ashraf********");
+                    console.log(xhr.statusText);
+                    console.log(textStatus);
+                    console.log(error);
+                    console.log("*****Ashraf********");
+                }
+            });
+
+             
+
+        });
+
+        $("#EyeCaptureButton").click(function () {
+            debugger;
+
+            $('#pageloaddivLeft').show();
+            $('#pageloaddivRight').show();
+            $('#IMAGE_IRIS_RIGHT').removeProp('src');
+            $('#IMAGE_IRIS_LEFT').removeProp('src');
+            $("#ResponseMessageQuailityEyes").text("");
+            $("#DivMessgaBox").hide();
+            $("#QuiltyRight").text("");
+            $("#QuiltyLeft").text("");
+            $("#QialtyHide").hide();
+            $("#QialtyHide2").hide();
+
+            $.ajax({
+                url: WindowsApiUrlIrisCapture,
+                type: "GET",
+
+                dataType: "json",
+                crossDomain: true,
+                success: function (response) {
+                    $('#pageloaddivLeft').hide();
+                    $('#pageloaddivRight').hide();
+                    $('#IMAGE_IRIS_RIGHT').removeProp('src', null);
+                    $('#IMAGE_IRIS_LEFT').removeProp('src', null);
+                    $("#ResponseMessageQuailityEyes").text("");
+                    $("#DivMessgaBox").hide();
+                    $("#QuiltyRight").text("");
+                    $("#QuiltyLeft").text("");
+                    $("#QialtyHide").hide();
+                    $("#QialtyHide2").hide();
+                    if (response.length > 0) {
+
+
+                        if (response[0].ImageQuailtyLeft != '0' && response[0].ImageQuailtyRight != '0') {
+
+                            if (response[0].MessageQuailty == 'Success,High quality') {
+                                $("#IMAGE_IRIS_RIGHT").attr("src", "data:image/png;base64," + response[0].ImageLeft);
+                                $("#IMAGE_IRIS_LEFT").attr("src", "data:image/png;base64," + response[0].ImageRight);
+                                $("#QuiltyRight").text(response[0].ImageQuailtyRight == "110" ? $("#DeqaIDRight").hide() : $("#DeqaIDRight").show());
+                                $("#QuiltyLeft").text(response[0].ImageQuailtyLeft == "110" ? $("#DeqaIDLeft").hide() : $("#DeqaIDLeft").show());
+
+
+                                $("#QialtyHide").show();
+                                $("#QialtyHide2").show();
+                                $("#QuiltyRight").text(response[0].ImageQuailtyRight == "110" ? "العين اليمنى مفقوده" : response[0].ImageQuailtyRight);
+                                $("#QuiltyLeft").text(response[0].ImageQuailtyLeft == "110" ? "العين اليسرى مفقوده" : response[0].ImageQuailtyLeft);
+
+
+                                $("#DivMessgaBox").show();
+                                $("#ResponseMessageQuailityEyes").text("تم الالتقاط بنجاح جودة الصورة عاليه");
+
+                            } else {
+                                $("#IMAGE_IRIS_RIGHT").attr("src", "data:image/png;base64," + response[0].ImageLeft);
+                                $("#IMAGE_IRIS_LEFT").attr("src", "data:image/png;base64," + response[0].ImageRight);
+                                $("#QuiltyRight").text(response[0].ImageQuailtyRight == "110" ? $("#DeqaIDRight").hide() : $("#DeqaIDRight").show());
+                                $("#QuiltyLeft").text(response[0].ImageQuailtyLeft == "110" ? $("#DeqaIDLeft").hide() : $("#DeqaIDLeft").show());
+                                $("#QialtyHide").show();
+                                $("#QialtyHide2").show();
+                                $("#QuiltyRight").text(response[0].ImageQuailtyRight == "110" ? "العين اليمنى مفقوده" : response[0].ImageQuailtyRight);
+                                $("#QuiltyLeft").text(response[0].ImageQuailtyLeft == "110" ? "العين اليسرى مفقوده" : response[0].ImageQuailtyLeft);
+                                $("#DivMessgaBox").show();
+                                $("#ResponseMessageQuailityEyes").text("فشـل جوده الصورة قليله يرجى المحاولة مره اخرى");
+                            }
+
+                        } else {
+                            $("#DivMessgaBox").show();
+                            $('#pageloaddivLeft').hide();
+                            $('#pageloaddivRight').hide();
+                            document.getElementById('IMAGE_IRIS_RIGHT').removeAttribute('src');
+                            document.getElementById('IMAGE_IRIS_LEFT').removeAttribute('src');
+                            $("#QuiltyRight").text("");
+                            $("#QuiltyLeft").text("");
+                            $("#QialtyHide").hide();
+                            $("#QialtyHide2").hide();
+                            $("#ResponseMessageQuailityEyes").text("لقد نفذ الوقت يرجى المحاولة مره اخرى");
+
+                        }
+
+
+                    }
+
+                },
+                error: function (e) {
+
+                    alert("Error");
+
+                }
+            });
+
+
+        });
+
+        //$("#connectButton").click(function () {
+
+        //    $.ajax({
+        //        url: WindowsApiUrlOpenDevice_Capture,
+        //        type: "GET",
+        //        dataType: "json",
+        //        crossDomain: true,
+        //        success: function (response) {
+
+        //            debugger;
+        //            if (response[0] == 'ConnectionSuccssfult') {
+        //                alert("تم تشغيل الكاميرا بنجاح");
+        //            } else if (response[0] == 'IS_ERROR_ALREADY_OPEN') {
+        //                alert("الكاميرا حاليا في وضع التشغيل");
+        //            } else {
+        //                if (confirm("قد تكون الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+        //                    window.open("/files/IRISCameraSetup.msi", "_base");
+        //                }
+        //            }
+        //        },
+        //        error: function (e) {
+        //            if (confirm("قد تكون الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+        //                window.open("/files/IRISCameraSetup.msi", "_base");
+        //            }
+        //        }
+        //    });
+
+
+        //})
+
+        $("#sDevices").change(function () {
+            debugger;
+            selectedDevice = $(this).find('option:selected').val();
+            WindowsApiUrlIrisCapture = "http://localhost:1234/api/Home/IrisCapture?WhichEye=" + selectedDevice;
+
+        });
+
+
+        $(document).ready(function () {
+            $.ajax({
+                url: WindowsApiUrlOpenDevice_Capture,
+                type: "GET",
+                dataType: "json",
+                crossDomain: true,
+                success: function (response) {
+
+                    debugger;
+                    if (response[0] == 'ConnectionSuccssfult') {
+                       // alert("تم تشغيل الكاميرا بنجاح");
+                    } else if (response[0] == 'IS_ERROR_ALREADY_OPEN') {
+                       // alert("الكاميرا حاليا في وضع التشغيل");
+                    } else if (response[0] == 'IS_ERROR_NONE') {
+                       // alert("الكاميرا حاليا في وضع التشغيل");
+                    }
+                    else {
+                        if (confirm("قد يكون الجهاز غير متوفر او الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+                            window.open("/IRIS_CAMERA_CAPTURE/files/IRISCameraSetup.msi", "_base");
+                        }
+
+                    }
+
+                },
+                error: function (e) {
+                    if (confirm("قد يكون الجهاز غير متوفر او الخدمة متوقفة أو أنه لم يتم تثبيتها . هل تود تحميل تعريف الإصدار الأحدث من الخدمة؟")) {
+                        window.open("/IRIS_CAMERA_CAPTURE/files/IRISCameraSetup.msi", "_base");
+                    }
+                }
+            });
+        });
+
+
+        $("#buttonBack").click(function () {
+
+            window.location = "/IRIS_CAMERA_CAPTURE/IRIS_Root/IRIS_PAGES";
+        });
+
+
+    </script>
+}
+
+
+<style>
+    .borderSstyle {
+        border: 1px solid;
+        border-radius: 25px;
+    }
+
+    #pageloaddivLeft {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        background: url('https://www.marcotec-shop.com/pub/static/frontend/Triple/marcotec/en_US/images/loading_small.gif') no-repeat center center;
+        margin-top: 65px;
+    }
+
+    #pageloaddivRight {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        background: url('https://www.marcotec-shop.com/pub/static/frontend/Triple/marcotec/en_US/images/loading_small.gif') no-repeat center center;
+        margin-top: 65px;
+    }
+
+
+
+    .img_camera {
+        width: 400px;
+        height: 240px;
+        position: absolute;
+        top: 5px;
+        padding-right: 64px;
+        z-index: 9999;
+    }
+
+    button#SaveEyeButton {
+        cursor: pointer;
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 175px;
+        height: 35px;
+        margin-top: 15px;
+    }
+
+    button#EyeVeryfiyButton {
+        cursor: pointer;
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 175px;
+        height: 35px;
+        margin-top: 15px;
+    }
+
+
+
+
+    button#EyeCaptureButton {
+        cursor: pointer;
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 175px;
+        height: 35px;
+        margin-top: 15px;
+    }
+
+    button#SaveEyeButton::after {
+        content: "\f0c7";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 18px;
+    }
+
+
+    button#EyeVeryfiyButton::after {
+        content: "\f046";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px;
+    }
+
+    button#buttonBack:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+
+    
+
+    button#EyeCaptureButton:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button#EyeCaptureButton::after {
+        content: "\f06e";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 10px;
+    }
+
+    button#connectButton {
+        cursor: pointer;
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 175px;
+        height: 35px;
+    }
+
+    .panel-default > .panel-heading {
+        direction: rtl;
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        text-orientation: rtl;
+    }
+
+    .form-control {
+        border: 1px solid #9e8615;
+    }
+
+    button#saveButton:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button#saveButton {
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        font-size: 18px;
+        font-weight: bold;
+        height: 35px;
+        color: white;
+        width: 200px !important;
+    }
+
+    button#captureButton:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button#EyeVeryfiyButton:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor:pointer;
+    }
+
+    button#SaveEyeButton:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    
+
+    button#captureButton {
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        font-size: 18px;
+        font-weight: bold;
+        height: 35px;
+        color: white;
+        width: 200px !important;
+    }
+
+
+    button#SaveImageCapture:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+
+    button#SaveImageCapture {
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        font-size: 18px;
+        font-weight: bold;
+        height: 35px;
+        color: white;
+        width: 200px !important;
+    }
+
+    button#connectButton:after {
+        content: "\f013";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 27px;
+    }
+
+    button#captureButton:after {
+        content: "\f030";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px;
+    }
+
+    button#saveButton:after {
+        content: "\f0c7";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px;
+    }
+
+    .alert {
+        padding: 20px;
+        color: white;
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+    }
+
+    .closebtn {
+        margin-left: 15px;
+        color: white;
+        font-weight: bold;
+        float: right;
+        font-size: 22px;
+        line-height: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .closebtn:hover {
+            color: black;
+            cursor: pointer;
+        }
+
+    select#sDevices {
+        direction: rtl;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    div#rcorners {
+        border-radius: 10px 10px 0px 0px;
+        border: 2px solid #1f3646;
+        border-bottom: 0px;
+        color: white !important;
+        padding: 20px;
+        width: 281px;
+        margin-left: 23px;
+        background-color: #1f3646;
+        font-size: 20px;
+    }
+
+    button#buttonBack {
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615;
+        color: white !important;
+        width: 105px;
+        height: 35px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+    }
+</style>
+<div class="container">
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">بصـــــمة العــــين</div>
+    </div>
+
+    <div class="col-lg-12 col-lg-offset-1 text-center">
+
+        <div class="row" style="margin-left:10px;">
+            <div class="form-group col-sm-8">
+                <select id="sDevices" class="form-control">
+                    <option value="1">العــين اليســرى</option>
+                    <option value="0">العـــين اليمــنى</option>
+                    <option value="2" selected>كلـــتا العينــين</option>
+                    <option value="3" >عيــون مفقـوده</option>
+                </select>
+            </div>
+            <div class="form-group col-sm-4">
+                <button class="fa" id="buttonBack" class="btn btn-success btn-block">الرئيسية</button>
+            </div>
+
+        </div>
+
+        <div class="row" style="margin-left:10px;">
+            <div class="form-group col-sm-8">
+                <div id="img" class="row" style="margin: 0 auto;">
+                    <div class="col-md-6">
+                        <div class="img_camera">
+                            <div id="pageloaddivLeft">
+                            </div>
+                        </div>
+                        <div id="rcorners">العـــين اليمــنى</div>
+                        <img id="IMAGE_IRIS_LEFT" alt="" class="borderSstyle" width="280" height="240" style="border: 1px solid #000000; border-radius: 0px 0px 25px 25px; margin-top: -1px;" />
+
+                        <!-- <canvas id="myCanvas" class="borderSstyle " width="320" height="240" style="border:1px solid #000000;"></canvas> -->
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="img_camera">
+                            <div id="pageloaddivRight">
+                            </div>
+                        </div>
+                        <div id="rcorners">العـــين اليســرى</div>
+                        <img id="IMAGE_IRIS_RIGHT" runat="server" class="borderSstyle" width="280" height="240" style="border: 1px solid #000000; border-radius: 0px 0px 25px 25px; margin-top: -1px;" />
+
+                        <!--<img id="imgCaptured" class="borderSstyle" width="190px" height="240px" src="" />-->
+                    </div>
+                </div>
+
+                <div id="img" class="row" style=" margin-top: 30px; margin-left: 90px;">
+                    <div id="QialtyHide" class="col-md-3" style="display: flex; direction: rtl;">
+                        <h4 id="DeqaIDRight" style="font-weight: bold;">الدقــــة &nbsp;&nbsp; </h4> <h4 id="QuiltyRight" style="font-weight: bold; color: brown; font-size: 20px;"> </h4>
+                    </div>
+
+
+                    <div id="QialtyHide2" class="col-md-6" style="display: flex; direction: rtl;">
+                        <h4 id="DeqaIDLeft" style="font-weight: bold;">الدقــــة &nbsp; &nbsp; </h4> <h4 id="QuiltyLeft" style="font-weight: bold; color: brown; font-size: 20px;"> </h4>
+                    </div>
+                </div>
+
+                <div id="DivMessgaBox" class="row" style="margin:30px;">
+                    <div class="col-md-12">
+                        <div class="alert">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                            <p style="font-size: 25px;" id="ResponseMessageQuailityEyes"></p>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="form-group col-sm-2">
+                @*<button type="button" class="fa" id="connectButton" class="btn btn-success btn-block ">تجهيز الكاميرا</button>*@
+
+                <button type="button" class="fa" id="EyeCaptureButton" class="btn btn-success btn-block">التقاط بصمه العين</button>
+
+                <button type="button" class="fa" id="SaveEyeButton" class="btn btn-success btn-block ">حفظ بصمات العين</button>
+
+                <button type="button" class="fa" id="EyeVeryfiyButton" class="btn btn-success btn-block ">التحقق من بصمه العين</button>
+
+
+            </div>
+        </div>
+
+    </div>
+</div>
+

@@ -1,0 +1,375 @@
+﻿
+@{
+    ViewBag.Title = "IRIS_PAGES";
+}
+
+@section script
+{
+    <link href="~/Content/fontawesome/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/fontawesome/font-awesome.min.css" rel="stylesheet" />
+    <script language="javascript" type="text/javascript">
+
+        var WindowsApiUrlCloseDevice = "@Url.Action("IRIS_CloseApp", "IRIS_Root")";
+
+        $("#buttonBack").click(function () {
+            debugger;
+
+            window.close();
+            //$.ajax({
+            //    url: WindowsApiUrlCloseDevice,
+            //    type: "GET",
+            //    dataType: "json",
+            //    crossDomain: true,
+            //    success: function (response) {
+            //        debugger;
+            //        window.close();
+
+            //    },
+            //    error: function (e) {
+            //        debugger;
+            //        window.close();
+            //    }
+            //});
+
+
+        });
+
+        
+        $("#CameraStyle").click(function () {
+            window.location = "/IRIS_CAMERA_CAPTURE/IRISCamera/Index";
+        });
+
+        $("#IRISStyle").click(function () {
+            window.location = "/IRIS_CAMERA_CAPTURE/IRIS_CAPTURE/Index";
+        });
+
+        $(document).ready(function () {
+            debugger;
+            let SCaseID = window.location.href;
+            sessionStorage.setItem('SCaseID', SCaseID);
+        });
+
+    </script>
+
+}
+
+<style>
+    .borderSstyle {
+        border: 1px solid;
+        border-radius: 25px;
+    }
+
+    #pageloaddivLeft {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        background: url('https://www.marcotec-shop.com/pub/static/frontend/Triple/marcotec/en_US/images/loading_small.gif') no-repeat center center;
+        margin-top: 65px;
+    }
+
+    #pageloaddivRight {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        background: url('https://www.marcotec-shop.com/pub/static/frontend/Triple/marcotec/en_US/images/loading_small.gif') no-repeat center center;
+        margin-top: 65px;
+    }
+
+
+
+    .img_camera {
+        width: 400px;
+        height: 240px;
+        position: absolute;
+        top: 5px;
+        padding-right: 64px;
+        z-index: 9999;
+    }
+
+    button#SaveEyeButton {
+        cursor: pointer;
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 175px;
+        height: 35px;
+        margin-top: 15px;
+    }
+
+    button#EyeVeryfiyButton {
+        cursor: pointer;
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 175px;
+        height: 35px;
+        margin-top: 15px;
+    }
+
+
+
+
+    button#EyeCaptureButton {
+        cursor: pointer;
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 175px;
+        height: 35px;
+        margin-top: 15px;
+    }
+
+    button#SaveEyeButton::after {
+        content: "\f0c7";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 18px;
+    }
+
+
+    button#EyeVeryfiyButton::after {
+        content: "\f046";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px;
+    }
+
+    button#EyeCaptureButton::after {
+        content: "\f06e";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 10px;
+    }
+
+    button#connectButton {
+        cursor: pointer;
+        color: white !important;
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1px !important;
+        font-size: 18px;
+        font-weight: bold;
+        width: 175px;
+        height: 35px;
+    }
+
+    .panel-default > .panel-heading {
+        direction: rtl;
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        text-orientation: rtl;
+    }
+
+    .form-control {
+        border: 1px solid #9e8615;
+    }
+
+    button#saveButton {
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        font-size: 18px;
+        font-weight: bold;
+        height: 35px;
+        color: white;
+        width: 200px !important;
+    }
+
+    button#captureButton {
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        font-size: 18px;
+        font-weight: bold;
+        height: 35px;
+        color: white;
+        width: 200px !important;
+    }
+
+    button#SaveImageCapture {
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+        font-size: 18px;
+        font-weight: bold;
+        height: 35px;
+        color: white;
+        width: 200px !important;
+    }
+
+    button#connectButton:after {
+        content: "\f013";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 27px;
+    }
+
+    button#captureButton:after {
+        content: "\f030";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px;
+    }
+
+    button#saveButton:after {
+        content: "\f0c7";
+        color: #9e8615;
+        font-size: 18px;
+        margin-left: 5px;
+    }
+
+    .alert {
+        padding: 20px;
+        color: white;
+        background-color: #1f3646;
+        border-bottom: 3px solid #9e8615;
+    }
+
+    .closebtn {
+        margin-left: 15px;
+        color: white;
+        font-weight: bold;
+        float: right;
+        font-size: 22px;
+        line-height: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .closebtn:hover {
+            color: black;
+        }
+
+    select#sDevices {
+        direction: rtl;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    div#rcorners {
+        border-radius: 10px 10px 0px 0px;
+        border: 2px solid #1f3646;
+        border-bottom: 0px;
+        color: white !important;
+        padding: 20px;
+        width: 281px;
+        margin-left: 23px;
+        background-color: #1f3646;
+        font-size: 20px;
+    }
+
+    div#CameraStyle {
+        /* background-color: aqua; */
+        background-color: #1f3646;
+        border: 3px solid #9e8615;
+        color: white;
+        padding: 71px;
+        left: 10%;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    div#IRISStyle:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+    }
+
+    div#CameraStyle:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+    }
+
+    div#IRISStyle {
+        /* background-color: aqua; */
+        background-color: #1f3646;
+        border: 3px solid #9e8615;
+        color: white;
+        padding: 71px;
+        left: 30%;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button#buttonBack:hover {
+        opacity: 0.8;
+        color: blanchedalmond;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    button#buttonBack {
+        background: #1f3646 !important;
+        border-bottom: 3px solid #9e8615;
+        color: white !important;
+        width: 105px;
+        height: 35px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+    }
+</style>
+<div class="container">
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">خيــــارات التصـــوير</div>
+
+    </div>
+
+    <div class="row" style="margin-left:10px;">
+        <div class="form-group col-sm-10">
+
+        </div>
+
+        @*<div class="form-group col-sm-2">
+            <button class="fa" id="buttonBack" class="btn btn-success btn-block">اغلاق</button>
+        </div>*@
+
+    </div>
+
+    <div class="col-lg-12 col-lg-offset-1 text-center">
+
+
+        <div class="row">
+            <div class="form-group col-sm-8">
+                <div id="img" class="row" style="margin: 75px auto;">
+                    <div id="CameraStyle" class="col-md-5">
+                        اخـــد صـــورة شخصـــية
+                    </div>
+
+                    <div id="IRISStyle" class="col-md-5">
+                        اخـــد بصـــمة العـــين
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+

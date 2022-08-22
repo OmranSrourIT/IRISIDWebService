@@ -1,0 +1,41 @@
+﻿ 
+@{
+    ViewBag.Title = "ImageLive_Capture";
+}
+<script rel="javascript" type="text/javascript" href="js/jquery-1.11.3.min.js"></script>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+
+    function AlertName(name) {
+
+        alert('You clicked ' + name + "!");
+
+    }
+   var url ="@Url.Action("ImageLive_Capture", "IRISCamera")";
+    debugger;
+    $(document).ready(function () {
+
+$.ajax({
+    url: url,
+    type:"GET",
+    data: { ItemCode: 1 },
+    contentType:"application/json; charset=utf-8",
+    dataType:"json",
+    success: function (response) {
+        debugger;
+
+        $("#imgDesign").attr("src", response.IMAGE_Arr);
+    }
+});
+    });
+
+
+</script>
+
+<div>
+    Image Live
+    <img id="imgDesign" src="" alt="design" width="500" height="500" />
+    <a onclick="AlertName('omran')" href="#">cLICK</a>
+    <img id="imgDesign" src="" alt="design" />
+</div>
+
