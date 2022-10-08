@@ -183,9 +183,9 @@
         $("#SaveImageCapture").click(function () {
             debugger;
            
-            let URL_CASEID = sessionStorage.getItem("SCaseID");
+            let URL_CASEID = sessionStorage.getItem("SCaseIDCamera");
             var CASEID = URL_CASEID ?URL_CASEID.split('=')[1]:"";
-            sessionStorage.removeItem("SCaseID");
+            sessionStorage.removeItem("SCaseIDCamera");
             var formdata = new FormData();
             /*var $("#imgCaptured").prop("src", capture.ImageUrl); */
             var ImageCupturesrc = document.getElementById("imgCaptured").src;

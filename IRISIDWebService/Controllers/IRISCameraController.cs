@@ -34,7 +34,7 @@ namespace IRIS_Camera_web.Controllers
 
 
 
-                    var strPathTest = @"\\10.130.149.107\Shared\MediaUploader";
+                    var strPathTest = @"\\10.130.149.107\Shared\Temp";
                    
                      
                     Random rnd = new Random();

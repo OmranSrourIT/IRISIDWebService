@@ -11,12 +11,13 @@
     <script language="javascript" type="text/javascript">
 
         var urlCapture = "@Url.Action("Save_Eyes_Capture", "IRIS_CAPTURE")";
-
+         var UrlApiGetImageSharedFolder = "@Url.Action("GetIRISImageLink", "IRIS_CAPTURE")";
         //var select = document.getElementById('sDevices');
         //var valueSelect = select.options[select.selectedIndex].value;
         var selectedDevice = "2";
         var WindowsApiUrlOpenDevice_Capture = "http://localhost:1234/api/Home/OpenDeviceIRIS_Capture";
-        var WindowsApiUrlIrisCapture = "http://localhost:1234/api/Home/IrisCapture?WhichEye=" + selectedDevice;;
+        var WindowsApiUrlIrisCapture = "http://localhost:1234/api/Home/IrisCapture?WhichEye=" + selectedDevice + "&QualityValue=75";
+
         $('#IMAGE_IRIS_RIGHT').removeProp('src');
         $('#IMAGE_IRIS_LEFT').removeProp('src');
         $('#pageloaddivLeft').hide();
@@ -75,11 +76,9 @@
 
             debugger;
 
-            let URL_CASEID = sessionStorage.getItem("SCaseID");
+            let URL_CASEID = sessionStorage.getItem("SCaseIDEyes");
             var CASEID = URL_CASEID ? URL_CASEID.split('=')[1] : "";
-            sessionStorage.removeItem("SCaseID");
-
-
+            sessionStorage.removeItem("SCaseIDEyes");
 
             var formdataRight = new FormData();
 
@@ -88,16 +87,16 @@
 
             var SplitstrImageRight = ImageEyeRight.split(',')[1];
             var SplitstrImageLeft = ImageEyeLeft.split(',')[1];
-             
+
             formdataRight.append("base64imageEyes", SplitstrImageRight);
                 $.ajax({
                     url: urlCapture,
                     type: "POST",
                     processData: false,
-                    contentType: false, 
+                    contentType: false,
                     data: formdataRight,
                     success: function (response) {
-                      
+
                         debugger;
 
                         SiebelApp = top.parent.SiebelApp;
@@ -151,7 +150,7 @@
                 url: urlCapture,
                 type: "POST",
                 processData: false,
-                contentType: false, 
+                contentType: false,
                 data: formdataLeft,
                 success: function (response) {
                  //   OUT_REFRESH_ATT(CASEID);
@@ -197,6 +196,107 @@
                 }
             });
 
+
+
+        });
+
+
+        $("#EyeVeryfiyButton").click(function () {
+
+            debugger;
+
+            var ImageRight = "";
+            var ImageLeft = "";
+
+            let URL_CASEID = sessionStorage.getItem("SCaseIDEyes");
+            var CASEID = URL_CASEID ? URL_CASEID.split('=')[1] : "";
+            sessionStorage.removeItem("SCaseIDEyes");
+
+            SiebelApp = top.parent.SiebelApp;
+            var sBusService = SiebelApp.S_App.GetService("Workflow Process Manager");
+            if (sBusService) {
+                //Create new property set
+                if (CASEID) {
+                    var Inputs = SiebelApp.S_App.NewPropertySet();
+                    var Outputs = SiebelApp.S_App.NewPropertySet();
+
+                    console.log("Object Id", CASEID);
+
+                    Inputs.SetProperty("ProcessName", 'OUT Delivary Get IRIS Images WF');
+                    Inputs.SetProperty("Object Id", CASEID);
+
+
+                    // Invoke the Business service Method and pass the Inputs
+                    Outputs = sBusService.InvokeMethod("RunProcess", Inputs);
+
+                    console.log(Outputs);
+
+                     ImageRight = Object.values(Object.values(Object.values(Outputs.childArray))[0].propArray)[0];
+                     ImageLeft = Object.values(Object.values(Object.values(Outputs.childArray))[0].propArray)[1];
+
+
+
+                    var formdata = new FormData();
+
+                    formdata.append("LinkRightImage", ImageRight);
+                    formdata.append("LinkLeftImage", ImageLeft);
+
+                    $.ajax({
+                        url: UrlApiGetImageSharedFolder,
+                        type: "POST",
+                        processData: false,
+                        contentType: false,
+                        data: formdata,
+                        success: function (response) {
+                            debugger;
+                            if (response == '"true"') {
+
+                                $("#DivMessgaBox").show();
+                                $("#ResponseMessageQuailityEyes").text("البصمات  متطابقة");
+
+                                //Update Flag on Seible
+
+                                SiebelApp = top.parent.SiebelApp;
+                                var sBusService = SiebelApp.S_App.GetService("Workflow Process Manager");
+                                if (sBusService) {
+                                    //Create new property set
+                                    if (CASEID) {
+                                        var Inputs = SiebelApp.S_App.NewPropertySet();
+                                        var Outputs = SiebelApp.S_App.NewPropertySet();
+
+                                        console.log("Object Id", CASEID);
+
+                                        Inputs.SetProperty("ProcessName", 'OUT Delivery Success WF');
+                                        Inputs.SetProperty("Object Id", CASEID);
+
+
+                                        // Invoke the Business service Method and pass the Inputs
+                                        Outputs = sBusService.InvokeMethod("RunProcess", Inputs);
+
+                                        console.log("UpdateFlag" + Outputs);
+                                    }
+                                }
+                                
+                            } else {
+                                $("#DivMessgaBox").show();
+                                $("#ResponseMessageQuailityEyes").text("البصمات غير متطابقة");
+                                 
+                            }
+
+                        },
+                        error: function (error) {
+
+                            console.log(error);
+
+                        }
+                    });
+
+
+
+                      
+                }
+            }
+
              
 
         });
@@ -218,7 +318,7 @@
             $.ajax({
                 url: WindowsApiUrlIrisCapture,
                 type: "GET",
-
+                processData: false,
                 dataType: "json",
                 crossDomain: true,
                 success: function (response) {
@@ -327,7 +427,7 @@
         $("#sDevices").change(function () {
             debugger;
             selectedDevice = $(this).find('option:selected').val();
-            WindowsApiUrlIrisCapture = "http://localhost:1234/api/Home/IrisCapture?WhichEye=" + selectedDevice;
+            WindowsApiUrlIrisCapture = "http://localhost:1234/api/Home/IrisCapture?WhichEye=" + selectedDevice + "&QualityValue=75";
 
         });
 
@@ -482,7 +582,7 @@
     }
 
 
-    
+
 
     button#EyeCaptureButton:hover {
         opacity: 0.8;
@@ -553,7 +653,7 @@
         opacity: 0.8;
         color: blanchedalmond;
         font-weight: bold;
-        cursor:pointer;
+        cursor: pointer;
     }
 
     button#SaveEyeButton:hover {
@@ -563,7 +663,7 @@
         cursor: pointer;
     }
 
-    
+
 
     button#captureButton {
         background-color: #1f3646;
@@ -682,7 +782,7 @@
                     <option value="1">العــين اليســرى</option>
                     <option value="0">العـــين اليمــنى</option>
                     <option value="2" selected>كلـــتا العينــين</option>
-                    <option value="3" >عيــون مفقـوده</option>
+                    <option value="3">عيــون مفقـوده</option>
                 </select>
             </div>
             <div class="form-group col-sm-4">
